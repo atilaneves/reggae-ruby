@@ -20,4 +20,7 @@ end
 class Target
   def initialize(outputs, command='', dependencies=[], implicits=[])
   end
+  def to_json
+    '{}'
+  end
 end
