@@ -18,9 +18,23 @@ end
 
 # A build target
 class Target
-  def initialize(outputs, command='', dependencies=[], implicits=[])
+  def initialize(outputs, command = '', dependencies = [], implicits = [])
+    @outputs = arrayify(outputs)
+    @command = command
+    @dependencies = arrayify(dependencies)
+    @implicits = arrayify(implicits)
   end
+
   def to_json
-    '{}'
+    { type: 'fixed',
+      command: {},
+      outputs: @outputs,
+      dependencies: { type: 'fixed', targets: @dependencies },
+      implicits: { type: 'fixed', targets: @implicits }
+    }.to_json
   end
+end
+
+def arrayify(arg)
+  arg.class == Array ? arg : [arg]
 end
