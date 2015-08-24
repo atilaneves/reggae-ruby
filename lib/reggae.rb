@@ -13,6 +13,7 @@ end
 # Aggregates top-level targets
 class Build
   def initialize(tgt)
+    @targets = arrayify(tgt)
   end
 end
 
