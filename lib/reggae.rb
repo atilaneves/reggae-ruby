@@ -69,6 +69,21 @@ def arrayify(arg)
   arg.class == Array ? arg : [arg]
 end
 
-def jsonifiable(arg, klass)
+private def jsonifiable(arg, klass)
   (arg.respond_to? :jsonify) ? arg : klass.new(arg)
+end
+
+# Equivalent to link in the D version
+class LinkCommand
+  def initialize(flags)
+    @flags = flags
+  end
+
+  def jsonify
+    { type: 'link', flags: @flags }
+  end
+end
+
+def link(exe_name:, flags: '', dependencies: [], implicits: [])
+  Target.new([exe_name], LinkCommand.new(flags), dependencies, implicits)
 end

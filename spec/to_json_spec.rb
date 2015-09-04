@@ -76,4 +76,64 @@ RSpec.describe Target, '#to_json' do
               "targets": []}}')
     end
   end
+
+  context 'link fixed' do
+    it 'returns the correct json for the link rule with fixed targets' do
+      main_obj = Target.new('main.o',
+                            'dmd -I$project/src -c $in -of$out',
+                            Target.new('src/main.d'))
+      maths_obj = Target.new('maths.o',
+                             'dmd -c $in -of$out',
+                             Target.new('src/maths.d'))
+      app = link(exe_name: 'myapp',
+                 dependencies: [main_obj, maths_obj],
+                 flags: '-L-M')
+      bld = Build.new(app)
+      expect(bld.to_json).to be_json_eql(
+        '[{"type": "fixed",
+          "command": {"type": "link", "flags": "-L-M"},
+          "outputs": ["myapp"],
+          "dependencies": {
+              "type": "fixed",
+              "targets":
+              [{"type": "fixed",
+                "command": {"type": "shell",
+                            "cmd": "dmd -I$project/src -c $in -of$out"},
+                "outputs": ["main.o"],
+                "dependencies": {"type": "fixed",
+                                 "targets": [
+                                     {"type": "fixed",
+                                      "command": {}, "outputs": ["src/main.d"],
+                                      "dependencies": {
+                                          "type": "fixed",
+                                          "targets": []},
+                                      "implicits": {
+                                          "type": "fixed",
+                                          "targets": []}}]},
+                "implicits": {
+                    "type": "fixed",
+                    "targets": []}},
+               {"type": "fixed",
+                "command": {"type": "shell", "cmd":
+                            "dmd -c $in -of$out"},
+                "outputs": ["maths.o"],
+                "dependencies": {
+                    "type": "fixed",
+                    "targets": [
+                        {"type": "fixed",
+                         "command": {}, "outputs": ["src/maths.d"],
+                         "dependencies": {
+                             "type": "fixed",
+                             "targets": []},
+                         "implicits": {
+                             "type": "fixed",
+                             "targets": []}}]},
+                "implicits": {
+                    "type": "fixed",
+                    "targets": []}}]},
+          "implicits": {
+              "type": "fixed",
+              "targets": []}}]')
+    end
+  end
 end
