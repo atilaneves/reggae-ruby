@@ -34,8 +34,8 @@ class Target
   def initialize(outputs, command = '', dependencies = [], implicits = [])
     @outputs = arrayify(outputs)
     @command = jsonifiable(command, ShellCommand)
-    @dependencies = arrayify(dependencies)
-    @implicits = arrayify(implicits)
+    @dependencies = dependify(dependencies, FixedDependencies)
+    @implicits = dependify(implicits, FixedDependencies)
   end
 
   def to_json
@@ -46,10 +46,8 @@ class Target
     { type: 'fixed',
       command: @command.jsonify,
       outputs: @outputs,
-      dependencies: { type: 'fixed',
-                      targets: @dependencies.map { |t| t.jsonify } },
-      implicits: { type: 'fixed',
-                   targets: @implicits.map { |t| t.jsonify } }
+      dependencies: @dependencies.jsonify,
+      implicits: @implicits.jsonify
     }
   end
 end
@@ -65,12 +63,16 @@ class ShellCommand
   end
 end
 
-def arrayify(arg)
+private def arrayify(arg)
   arg.class == Array ? arg : [arg]
 end
 
 private def jsonifiable(arg, klass)
   (arg.respond_to? :jsonify) ? arg : klass.new(arg)
+end
+
+private def dependify(arg, klass)
+  (arg.is_a? Dependencies) ? arg : klass.new(arg)
 end
 
 # Equivalent to link in the D version
@@ -86,4 +88,45 @@ end
 
 def link(exe_name:, flags: '', dependencies: [], implicits: [])
   Target.new([exe_name], LinkCommand.new(flags), dependencies, implicits)
+end
+
+def object_files(src_dirs: [], exclude_dirs: [],
+                 src_files: [], exclude_files: [],
+                 flags: '',
+                 includes: [], string_imports: [])
+  DynamicDependencies.new('objectFiles',
+                          { src_dirs: src_dirs,
+                            exclude_dirs: exclude_dirs,
+                            src_files: src_files,
+                            exclude_files: exclude_files,
+                            flags: flags,
+                            includes: includes,
+                            string_imports: string_imports })
+end
+
+class Dependencies
+end
+
+# A 'compile-time' known list of dependencies
+class FixedDependencies < Dependencies
+  def initialize(deps)
+    @deps = arrayify(deps)
+  end
+
+  def jsonify
+    { type: 'fixed', targets: @deps.map { |t| t.jsonify } }
+  end
+end
+
+# A run-time determined list of dependencies
+class DynamicDependencies < Dependencies
+  def initialize(func_name, args)
+    @func_name = func_name
+    @args = args
+  end
+
+  def jsonify
+    base = { type: 'dynamic', func: @func_name }
+    base.merge(@args)
+  end
 end

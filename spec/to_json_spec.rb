@@ -136,4 +136,29 @@ RSpec.describe Target, '#to_json' do
               "targets": []}}]')
     end
   end
+
+  context 'link dynamic' do
+    it 'returns the correct json for the link rule with dynamic targets'do
+      objs = object_files(flags: '-I$project/src', src_dirs: ['src'])
+      app = link(exe_name: 'myapp', dependencies: objs, flags: '-L-M')
+      bld = Build.new(app)
+      expect(bld.to_json).to be_json_eql(
+        '[{"type": "fixed",
+          "command": {"type": "link", "flags": "-L-M"},
+          "outputs": ["myapp"],
+          "dependencies": {
+              "type": "dynamic",
+              "func": "objectFiles",
+              "src_dirs": ["src"],
+              "exclude_dirs": [],
+              "src_files": [],
+              "exclude_files": [],
+              "flags": "-I$project/src",
+              "includes": [],
+              "string_imports": []},
+          "implicits": {
+              "type": "fixed",
+              "targets": []}}]')
+    end
+  end
 end
