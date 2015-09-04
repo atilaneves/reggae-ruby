@@ -130,3 +130,23 @@ class DynamicDependencies < Dependencies
     base.merge(@args)
   end
 end
+
+# a rule to create a static library
+def static_library(name,
+                   src_dirs: [],
+                   exclude_dirs: [],
+                   src_files: [],
+                   exclude_files: [],
+                   flags: '',
+                   includes: [],
+                   string_imports: [])
+    DynamicDependencies.new('staticLibrary',
+                            { name: name,
+                              src_dirs: src_dirs,
+                              exclude_dirs: exclude_dirs,
+                              src_files: src_files,
+                              exclude_files: exclude_files,
+                              flags: flags,
+                              includes: includes,
+                              string_imports: string_imports })
+end
