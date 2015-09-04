@@ -191,4 +191,23 @@ RSpec.describe Target, '#to_json' do
               "targets": []}}]')
     end
   end
+
+  context 'scriptlike' do
+    it 'returns the correct json for the scriptlike rule' do
+      app = scriptlike(src_name: 'src/main.d',
+                       exe_name: 'leapp',
+                       flags: '-g',
+                       includes: ['src'])
+      bld = Build.new(app)
+      expect(bld.to_json).to be_json_eql(
+        '[{"type": "dynamic",
+          "func": "scriptlike",
+          "src_name": "src/main.d",
+          "exe_name": "leapp",
+          "link_with": {"type": "fixed", "targets": []},
+          "flags": "-g",
+          "includes": ["src"],
+          "string_imports": []}]')
+    end
+  end
 end

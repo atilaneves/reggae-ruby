@@ -118,19 +118,6 @@ class FixedDependencies < Dependencies
   end
 end
 
-# A run-time determined list of dependencies
-class DynamicDependencies < Dependencies
-  def initialize(func_name, args)
-    @func_name = func_name
-    @args = args
-  end
-
-  def jsonify
-    base = { type: 'dynamic', func: @func_name }
-    base.merge(@args)
-  end
-end
-
 # a rule to create a static library
 def static_library(name,
                    src_dirs: [],
@@ -149,4 +136,53 @@ def static_library(name,
                               flags: flags,
                               includes: includes,
                               string_imports: string_imports })
+end
+
+def scriptlike(src_name:,
+               exe_name:,
+               flags: '',
+               includes: [],
+               string_imports: [],
+               link_with: [])
+
+  Dynamic.new('scriptlike',
+              { src_name: src_name,
+                exe_name: exe_name,
+                flags: flags,
+                includes: includes,
+                string_imports: string_imports,
+                link_with: dependify(link_with, FixedDependencies) })
+end
+
+# A run-time determined list of dependencies
+class DynamicDependencies < Dependencies
+  def initialize(func_name, args)
+    @func_name = func_name
+    @args = args
+  end
+
+  def jsonify
+    base = { type: 'dynamic', func: @func_name }
+    base.merge(@args)
+  end
+end
+
+# dynamic target
+class Dynamic
+  def initialize(func_name, args)
+    @func_name = func_name
+    @args = args
+  end
+
+  def jsonify
+    hash = { type: 'dynamic', func: @func_name }
+    @args.each do |k, v|
+      if v.respond_to? :jsonify
+        hash[k] = v.jsonify
+      else
+        hash[k] = v
+      end
+    end
+    hash
+  end
 end
