@@ -50,4 +50,30 @@ RSpec.describe Target, '#to_json' do
           "implicits": {"type": "fixed", "targets": []}}]')
     end
   end
+
+  context 'project dir include' do
+    it 'returns the correct json for $projectdir in command' do
+      main_obj = Target.new('main.o',
+                            'dmd -I$project/src -c $in -of$out',
+                            Target.new('src/main.d'))
+      expect(main_obj.to_json).to be_json_eql(
+        '{"type": "fixed",
+          "command": {"type": "shell",
+                      "cmd": "dmd -I$project/src -c $in -of$out"},
+          "outputs": ["main.o"],
+          "dependencies": {"type": "fixed",
+                           "targets": [
+                               {"type": "fixed",
+                                "command": {}, "outputs": ["src/main.d"],
+                                "dependencies": {
+                                    "type": "fixed",
+                                    "targets": []},
+                                "implicits": {
+                                    "type": "fixed",
+                                    "targets": []}}]},
+          "implicits": {
+              "type": "fixed",
+              "targets": []}}')
+    end
+  end
 end
