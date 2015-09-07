@@ -9,4 +9,10 @@ A Ruby interface / front-end to [the reggae meta-build system](https://github.or
 Installation
 ------------
 
+Add this line to your application's Gemfile:
+
+    gem 'reggae'
+
+Or install it yourself:
+
     gem install reggae
