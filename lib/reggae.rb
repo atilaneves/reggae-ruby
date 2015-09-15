@@ -14,8 +14,8 @@ end
 
 # Aggregates top-level targets
 class Build
-  def initialize(tgt)
-    @targets = arrayify(tgt)
+  def initialize(*targets)
+    @targets = targets
   end
 
   def to_json
