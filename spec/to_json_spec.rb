@@ -219,14 +219,14 @@ RSpec.describe Target, '#to_json' do
                   dependencies: objs1,
                   flags: '-L-M')
       objs2 = object_files(flags: '-I$project/other',
-                           src_dirs: ['other', 'yetanother'])
+                           src_dirs: %w(other yetanother))
       app2 = link(exe_name: 'app2',
                   dependencies: objs2)
 
       bld = Build.new(app1, app2)
 
       expect(bld.to_json).to be_json_eql(
-         '[{"type": "fixed",
+        '[{"type": "fixed",
           "command": {"type": "link", "flags": "-L-M"},
           "outputs": ["app1"],
           "dependencies": {
@@ -258,7 +258,7 @@ RSpec.describe Target, '#to_json' do
           "implicits": {
               "type": "fixed",
               "targets": []}}]'
-                             )
+      )
     end
   end
 end
