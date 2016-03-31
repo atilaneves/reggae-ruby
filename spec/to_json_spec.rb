@@ -51,6 +51,32 @@ RSpec.describe Target, '#to_json' do
     end
   end
 
+  context 'build with helper functions' do
+    it 'returns correct json for a Build object' do
+      bld = build(target('foo',
+                         'dmd -offoo foo.d',
+                         [target('foo.d')]))
+
+      expect(bld.to_json).to be_json_eql(
+        '[{"type": "fixed",
+          "command": {"type": "shell",
+                      "cmd": "dmd -offoo foo.d"},
+          "outputs": ["foo"],
+          "dependencies": {"type": "fixed",
+                           "targets":
+                           [{"type": "fixed",
+                             "command": {},
+                           "outputs": ["foo.d"],
+                           "dependencies": {
+                               "type": "fixed",
+                               "targets": []},
+                           "implicits": {
+                               "type": "fixed",
+                               "targets": []}}]},
+          "implicits": {"type": "fixed", "targets": []}}]')
+    end
+  end
+
   context 'project dir include' do
     it 'returns the correct json for $projectdir in command' do
       main_obj = Target.new('main.o',

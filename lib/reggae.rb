@@ -27,6 +27,10 @@ class Build
   end
 end
 
+def build(*targets)
+  Build.new(*targets)
+end
+
 # A build target
 class Target
   attr_reader :outputs, :command, :dependencies, :implicits
@@ -50,6 +54,10 @@ class Target
       implicits: @implicits.jsonify
     }
   end
+end
+
+def target(outputs, command = '', dependencies = [], implicits = [])
+  Target.new(outputs, command, dependencies, implicits)
 end
 
 # A shell command
