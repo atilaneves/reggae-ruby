@@ -72,7 +72,20 @@ private def jsonifiable(arg, klass)
 end
 
 private def dependify(arg, klass)
-  (arg.is_a? Dependencies) ? arg : klass.new(arg)
+  if arg.is_a? Dependencies
+    return arg
+  end
+
+  if arg.is_a?(Array) && arg.length > 1 && \
+     arg.any? { |x| x.is_a? DynamicDependencies }
+    return target_concat(arg)
+  end
+
+  klass.new(arg)
+end
+
+private def target_concat(targets)
+  DynamicDependencies.new('targetConcat', dependencies: targets.map { |x| x.jsonify })
 end
 
 # Equivalent to link in the D version
