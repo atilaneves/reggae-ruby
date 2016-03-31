@@ -338,4 +338,33 @@ RSpec.describe Target, '#to_json' do
                ]}}]')
     end
   end
+
+  context 'source files' do
+    it 'should return the correct JSON when src_files is used' do
+
+      objs = object_files(flags: '-g -pg',
+                          src_dirs: ['src'],
+                          src_files: ['main.cpp'])
+      app = link(exe_name: 'myapp', dependencies: objs)
+      bld = build(app)
+
+      expect(bld.to_json).to be_json_eql(
+        '[{"type": "fixed",
+               "command": {"type": "link", "flags": ""},
+               "outputs": ["myapp"],
+               "dependencies": {
+                                 "type": "dynamic",
+                                "func": "objectFiles",
+                                "src_dirs": ["src"],
+                                "exclude_dirs": [],
+                                "src_files": ["main.cpp"],
+                                "exclude_files": [],
+                                "flags": "-g -pg",
+                                "includes": [],
+                                "string_imports": []},
+               "implicits": {
+                              "type": "fixed",
+                             "targets": []}}]')
+    end
+  end
 end
